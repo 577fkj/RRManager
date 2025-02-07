@@ -132,13 +132,16 @@ export default
                 },
             };
             return Ext.apply(t, e), t;
-        }, _getRrConfig: function () {
+        }, _getRrConfig: async function () {
             const rrConfigJson = localStorage.getItem('rrConfig');
-            return JSON.parse(rrConfigJson);
+            if (rrConfigJson) {
+                return JSON.parse(rrConfigJson);
+            }
+            return await self.getConf();
         },
-        __checkDownloadFolder: function (callback) {
+        __checkDownloadFolder: async function (callback) {
             var self = this;
-            const rrConfig = this._getRrConfig();
+            const rrConfig = await this._getRrConfig();
             const config = rrConfig.rr_manager_config;
             self.apiProvider.getSharesList().then(x => {
                 var shareName = `/${config['SHARE_NAME']}`;
@@ -285,7 +288,7 @@ export default
                     var isModernDSM = systemInfo.version_string.includes("7.2.2");
                     self.apiProvider.setIsModernDSM(isModernDSM);
 
-                    self.__checkDownloadFolder(self.__checkRequiredTasks.bind(self));
+                    await self.__checkDownloadFolder(self.__checkRequiredTasks.bind(self));
                     if (systemInfo && packages) {
                         self.rrCheckVersion = rrCheckVersion;
                         //TODO: implement localization
